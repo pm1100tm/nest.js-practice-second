@@ -35,6 +35,6 @@ export class User extends BaseEntity {
   })
   email: string;
 
-  @OneToMany((type) => Board, (board) => board.user, { eager: true })
+  @OneToMany((type) => Board, (board) => board.user, { eager: false })
   board: Board[];
 }

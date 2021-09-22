@@ -56,12 +56,13 @@ export class BoardService {
     return board;
   }
 
-  async deleteBoard(id: number): Promise<void> {
-    const result = await this.boardRepository.delete(id);
-
-    if (result.affected === 0) {
-      throw new NotFoundException(`Can't found Board with the id. ${id}`);
+  async deleteBoard(id: number, user: User): Promise<void> {
+    const board = await this.getBoardById(id);
+    if (board.user.id !== user.id) {
+      throw new UnauthorizedException('Not author of the board.');
     }
+
+    await this.boardRepository.deleteBoard(id, user.id);
   }
 
   // getAllBoards(): Board[] {

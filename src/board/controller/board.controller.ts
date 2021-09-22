@@ -74,9 +74,11 @@ export class BoardController {
    * board 삭제
    */
   @Delete('/:id')
-  deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    console.log(typeof id);
-    return this.boardService.deleteBoard(id);
+  deleteBoard(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.boardService.deleteBoard(id, user);
   }
 
   // @Get('/:id')

@@ -25,4 +25,16 @@ export class BoardRepository extends Repository<Board> {
     const boardList = await query.getMany();
     return boardList;
   }
+
+  async deleteBoard(boardId: number, userId: number): Promise<void> {
+    console.log(boardId, userId);
+
+    const query = this.createQueryBuilder()
+      .delete()
+      .from(Board)
+      .where('id = :boardId', { boardId: boardId })
+      .andWhere('userId = :userId', { userId: userId });
+
+    await query.execute();
+  }
 }
