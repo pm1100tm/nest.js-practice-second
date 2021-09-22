@@ -8,7 +8,7 @@ import {
 import { BoardStatus } from '../enum/board-status.enum';
 import { Board } from './../entity/board.entity';
 import { v1 as uuid } from 'uuid';
-import { BoardRepository } from '../repositories/board.repository';
+import { BoardRepository } from '../repository/board.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
