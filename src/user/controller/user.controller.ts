@@ -1,4 +1,5 @@
-import { CreateUserDto } from './../dto/create-user.dto';
+import { SignUpUserDto } from './../dto/sign-up-user.dto';
+import { SignInUserDto } from '../dto/sign-in-user.dto';
 import { UserService } from './../service/user.service';
 import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
 import { User } from '../entitiy/user.entity';
@@ -8,10 +9,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('sign-up')
-  createUser(
-    @Body(ValidationPipe) createUserDto: CreateUserDto,
-  ): Promise<User> {
-    console.log(createUserDto);
-    return this.userService.createUser(createUserDto);
+  signUp(@Body(ValidationPipe) signUpUserDto: SignUpUserDto): Promise<User> {
+    return this.userService.signUpUser(signUpUserDto);
+  }
+
+  @Post('sign-in')
+  signIn(@Body(ValidationPipe) signInUserDto: SignInUserDto): Promise<User> {
+    return this.userService.signInUser(signInUserDto);
   }
 }

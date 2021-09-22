@@ -5,9 +5,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Entity } from 'typeorm';
 
-export class CreateUserDto {
+export class SignUpUserDto {
   @IsNotEmpty()
   @MinLength(4)
   @MaxLength(25)

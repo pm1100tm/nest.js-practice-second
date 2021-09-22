@@ -1,19 +1,32 @@
 import { User } from './../entitiy/user.entity';
-import { CreateUserDto } from './../dto/create-user.dto';
+import { SignUpUserDto } from '../dto/sign-up-user.dto';
 import { Repository, EntityRepository } from 'typeorm';
+import {
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    console.log('user repo');
-    const { username, password, email } = createUserDto;
+  async createUser(signUpUserDto: SignUpUserDto): Promise<User> {
+    const { username, password, email } = signUpUserDto;
+
     const user = this.create({
       username,
       password,
       email,
     });
-    const result = await this.save(user);
-    console.log(result);
+
+    try {
+      await this.save(user);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException(`Already Exsiting username:: ${username}`);
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
+
     return user;
   }
 }
