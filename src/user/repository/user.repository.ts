@@ -1,5 +1,5 @@
 import { User } from './../entitiy/user.entity';
-import { SignUpUserDto } from '../dto/sign-up-user.dto';
+import { SignUpUserDto } from '../../auth/dto/sign-up-user.dto';
 import { Repository, EntityRepository } from 'typeorm';
 import {
   ConflictException,
@@ -8,6 +8,7 @@ import {
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
+
   async createUser(signUpUserDto: SignUpUserDto): Promise<User> {
     const { username, password, email } = signUpUserDto;
 
