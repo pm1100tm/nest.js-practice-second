@@ -14,7 +14,9 @@ export class UserController {
   }
 
   @Post('sign-in')
-  signIn(@Body(ValidationPipe) signInUserDto: SignInUserDto): Promise<User> {
+  signIn(
+    @Body(ValidationPipe) signInUserDto: SignInUserDto,
+  ): Promise<{ accessToken: string }> {
     return this.userService.signInUser(signInUserDto);
   }
 }

@@ -1,3 +1,4 @@
+import { AuthService } from './../../auth/auth.service';
 import { SignUpUserDto } from './../dto/sign-up-user.dto';
 import { SignInUserDto } from './../dto/sign-in-user.dto';
 import { UserRepository } from './../repository/user.repository';
@@ -15,6 +16,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
+    private readonly authService: AuthService,
   ) {}
 
   async getUserByUserName(username: string): Promise<User> {
@@ -33,13 +35,16 @@ export class UserService {
     return this.userRepository.createUser(signUpUserDto);
   }
 
-  async signInUser(signInUserDto: SignInUserDto): Promise<User> {
+  async signInUser(
+    signInUserDto: SignInUserDto,
+  ): Promise<{ accessToken: string }> {
     const { username, password } = signInUserDto;
     const user = await this.getUserByUserName(username);
 
-    if (bcrypt.compare(password, user.password)) {
+    if (await bcrypt.compare(password, user.password)) {
       console.log('sign in success');
-      return user;
+      const accessToken = await this.authService.generateToken(username);
+      return { accessToken };
     } else {
       throw new UnauthorizedException(
         'Login failed. Plaese check your id or password.',
