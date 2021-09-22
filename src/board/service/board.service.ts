@@ -1,9 +1,11 @@
+import { User } from 'src/user/entitiy/user.entity';
 import { CreateBoardDto } from './../dto/create-board.dto';
 import {
   ConsoleLogger,
   Injectable,
   NotFoundException,
   Param,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { BoardStatus } from '../enum/board-status.enum';
 import { Board } from './../entity/board.entity';
@@ -34,8 +36,15 @@ export class BoardService {
     return found;
   }
 
-  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
-    return this.boardRepository.createBoard(createBoardDto);
+  async getBoardListByUser(user: User): Promise<Board[]> {
+    return this.boardRepository.getBoardListByUser(user.id);
+  }
+
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    user: User,
+  ): Promise<Board> {
+    return this.boardRepository.createBoard(createBoardDto, user);
   }
 
   async updateBoard(id: number, status: BoardStatus): Promise<Board> {

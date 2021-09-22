@@ -15,6 +15,9 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
+  /** 서비스
+   * 생성자
+   */
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,

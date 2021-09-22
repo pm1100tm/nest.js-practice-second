@@ -4,8 +4,10 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from 'src/user/entitiy/user.entity';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -22,4 +24,7 @@ export class Board extends BaseEntity {
     nullable: false,
   })
   status: BoardStatus;
+
+  @ManyToOne((type) => User, (user) => user.board, { eager: false })
+  user: User;
 }

@@ -14,6 +14,9 @@ import { User } from 'src/user/entitiy/user.entity';
 
 @Controller('user')
 export class AuthController {
+  /** 컨트롤러
+   * 생성자 - authService
+   */
   constructor(private readonly authService: AuthService) {}
 
   /** 컨트롤러
@@ -32,14 +35,5 @@ export class AuthController {
     @Body(ValidationPipe) signInUserDto: SignInUserDto,
   ): Promise<{ accessToken: string }> {
     return this.authService.signInUser(signInUserDto);
-  }
-
-  /** 컨트롤러
-   * 가드 테스트
-   */
-  @Post('/test')
-  @UseGuards(AuthGuard())
-  test(@GetUser() user: User) {
-    console.log('user', user);
   }
 }

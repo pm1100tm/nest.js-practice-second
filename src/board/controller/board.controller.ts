@@ -1,7 +1,4 @@
-import { CreateBoardDto } from './../dto/create-board.dto';
-import { Board } from './../entity/board.entity';
-import { BoardStatus } from '../enum/board-status.enum';
-import { BoardService } from '../service/board.service';
+import { User } from 'src/user/entitiy/user.entity';
 import {
   Body,
   Controller,
@@ -13,29 +10,58 @@ import {
   UsePipes,
   ParseIntPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
+
+import { CreateBoardDto } from './../dto/create-board.dto';
+import { BoardStatus } from '../enum/board-status.enum';
 import { BoardStatusValidation } from '../pipes/board-status-validation.pipe';
 
+import { BoardService } from '../service/board.service';
+
+import { Board } from './../entity/board.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+
 @Controller('board')
+@UseGuards(AuthGuard())
 export class BoardController {
+  /** 생성자
+   * DI - boardService
+   */
   constructor(private readonly boardService: BoardService) {}
 
+  /** 컨트롤러
+   * 모든 board 취득
+   */
   @Get()
   getAllBoard(): Promise<Board[]> {
     return this.boardService.getAllBoards();
   }
 
+  /** 컨트롤러
+   * board id 를 사용하여, 하나의 board 취득
+   */
   @Get('/:id')
   getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.boardService.getBoardById(id);
   }
 
+  /** 컨트롤러
+   * board 생성
+   */
   @Post()
   @UsePipes(ValidationPipe)
-  createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
-    return this.boardService.createBoard(createBoardDto);
+  createBoard(
+    @Body() createBoardDto: CreateBoardDto,
+    @GetUser() user: User,
+  ): Promise<Board> {
+    return this.boardService.createBoard(createBoardDto, user);
   }
 
+  /** 컨트롤러
+   * board 변경
+   */
   @Patch('/:id/status')
   updateBoard(
     @Param('id', ParseIntPipe) id: number,
@@ -44,58 +70,18 @@ export class BoardController {
     return this.boardService.updateBoard(id, status);
   }
 
+  /** 컨트롤러
+   * board 삭제
+   */
   @Delete('/:id')
   deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<void> {
     console.log(typeof id);
     return this.boardService.deleteBoard(id);
   }
 
-  // @Get()
-  // getAllBoard(): Board[] {
-  //   console.log('==getAllBoard');
-  //   return this.boardService.getAllBoards();
-  // }
-
-  // @Get('/:id')
-  // findOne(@Param('id', ParseIntPipe) id: number) {
-  //   return null;
-  // }
-
-  // @Get(':id')
-  // getOneBoard(@Param('id', ParseIntPipe) id: number) {
-  //   console.log('=================');
-  //   const test = this.boardService.getOneBoard(id);
-  //   return null;
-  // }
-
   // @Get('/:id')
   // getOneBoardTwo(@Param() params: string[]) {
   //   console.log(params);
-  //   return null;
-  // }
-
-  // @Post()
-  // @UsePipes(ValidationPipe)
-  // createBoard(@Body() createBoardDto: CreateBoardDto): Board {
-  //   const test = this.boardService.createBoard(createBoardDto);
-  //   return test;
-  // }
-
-  // @Patch('/:id/status')
-  // updateBoardStatus(
-  //   @Param('id') id: number,
-  //   @Body('status', BoardStatusValidation) status: BoardStatus,
-  // ): Board {
-  //   console.log('updateBoardStatus');
-  //   console.log(status);
-  //   console.log('================');
-  //   const board = this.boardService.updateBoardStatus(id, status);
-  //   return board;
-  // }
-
-  // @Delete('/:id')
-  // deleteBoard(@Param('id', ParseIntPipe) id: number): void {
-  //   const test = this.boardService.deleteBoard(id);
   //   return null;
   // }
 
@@ -106,13 +92,6 @@ export class BoardController {
   // ) {
   //   console.log('==createBoard')
   //   const test = this.boardService.createBoard(title, desc)
-  //   return test
-  // }
-
-  // @Post()
-  // createBoardTwo(@Body() body) {
-  //   console.log('==createBoardTwo')
-  //   const test = this.boardService.createBoard()
   //   return test
   // }
 }
