@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,19 +16,21 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
-  /** 서비스
-   * 생성자
-   */
+  private logger = new Logger(AuthService.name);
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
     private jwtService: JwtService,
   ) {}
 
-  /** 서비스
-   * 유저 생성
+  /**
+   * 유저를 생성하면서 패스워드 복호화
+   * @param signUpUserDto
+   * @returns User Entity
    */
   async signUpUser(signUpUserDto: SignUpUserDto): Promise<User> {
+    this.logger.verbose('signUpUser');
+
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(signUpUserDto.password, salt);
     signUpUserDto.password = hashedPassword;
@@ -35,12 +38,16 @@ export class AuthService {
     return this.userRepository.createUser(signUpUserDto);
   }
 
-  /** 서비스
-   * 유저 로그인
+  /**
+   * 유저 로그인. 엑세스 토큰을 발행함.
+   * @param signInUserDto
+   * @returns
    */
   async signInUser(
     signInUserDto: SignInUserDto,
   ): Promise<{ accessToken: string }> {
+    this.logger.verbose('signInUser');
+
     const { username, password } = signInUserDto;
     const user = await this.userRepository.findOne({ username });
 
@@ -59,6 +66,8 @@ export class AuthService {
    * 유저 토큰 생성
    */
   async generateToken(username: string): Promise<string> {
+    this.logger.verbose('signUpUser');
+
     const payload = { username };
     try {
       return await this.jwtService.sign(payload);

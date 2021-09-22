@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   ValidationPipe,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 
 import { CreateBoardDto } from './../dto/create-board.dto';
@@ -26,58 +27,64 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @Controller('board')
 @UseGuards(AuthGuard())
 export class BoardController {
-  /** 생성자
-   * DI - boardService
-   */
+  private logger = new Logger(BoardController.name);
   constructor(private readonly boardService: BoardService) {}
 
-  /** 컨트롤러
-   * 모든 board 취득
+  /**
+   * 모든 Board 취득함.
+   * @returns Board[]
    */
   @Get()
   getAllBoard(): Promise<Board[]> {
+    this.logger.verbose('Get - getAllBoard');
     return this.boardService.getAllBoards();
   }
 
-  /** 컨트롤러
-   * board id 를 사용하여, 하나의 board 취득
+  /**
+   * Board Id 로 하나의 Board 취득
+   * @param id
+   * @returns Board
    */
   @Get('/:id')
   getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
+    this.logger.verbose('Get - getBoardById', JSON.stringify(id));
     return this.boardService.getBoardById(id);
   }
 
-  /** 컨트롤러
-   * board 생성
+  /**
+   * Board 생성
+   * @param createBoardDto
+   * @param user
+   * @returns Board
    */
   @Post()
   @UsePipes(ValidationPipe)
-  createBoard(
-    @Body() createBoardDto: CreateBoardDto,
-    @GetUser() user: User,
-  ): Promise<Board> {
+  createBoard(@Body() createBoardDto: CreateBoardDto, @GetUser() user: User): Promise<Board> {
+    this.logger.verbose(`Post - createBoard. CreateBoardDto: ${JSON.stringify(createBoardDto)}, UserId: ${user.id}`)
     return this.boardService.createBoard(createBoardDto, user);
   }
 
-  /** 컨트롤러
-   * board 변경
+  /**
+   * 해당 ID Board 의 status 값만 변경
+   * @param id
+   * @param status
+   * @returns
    */
   @Patch('/:id/status')
-  updateBoard(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('status', BoardStatusValidation) status: BoardStatus,
-  ): Promise<Board> {
+  updateBoard(@Param('id', ParseIntPipe) id: number, @Body('status', BoardStatusValidation) status: BoardStatus): Promise<Board> {
+    this.logger.verbose(`Patch - updateBoard. status: ${status}, UserId: ${id}`)
     return this.boardService.updateBoard(id, status);
   }
 
-  /** 컨트롤러
-   * board 삭제
+  /**
+   * 해당 ID 의 Board 삭제 (본인만 삭제 가능)
+   * @param id
+   * @param user
+   * @returns
    */
   @Delete('/:id')
-  deleteBoard(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: User,
-  ): Promise<void> {
+  deleteBoard(@Param('id', ParseIntPipe) id: number, @GetUser() user: User): Promise<void> {
+    this.logger.verbose(`Delete - deleteBoard. BoardId: ${id}, UserId: ${user.id}`)
     return this.boardService.deleteBoard(id, user);
   }
 
